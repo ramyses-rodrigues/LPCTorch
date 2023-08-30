@@ -12,7 +12,7 @@ from librosa.core import lpc
 # Load audio file
 sr             = 16000 # 16 kHz
 path           = './examples/sample.wav'
-data, _sr      = torchaudio.load( path, normalization = lambda x: x.abs( ).max( ) )
+data, _sr      = torchaudio.load(path) #""", normalization = lambda x: x.abs( ).max( ) )"""
 data           = torchaudio.transforms.Resample( _sr, sr )( data )
 duration       = data.size( 1 ) / sr
 
@@ -33,8 +33,8 @@ lpc_prep       = LPCCoefficients(
     frame_duration,
     frame_overlap,
     order = ( K - 1 )
-).eval( ).cuda( )
-alphas         = lpc_prep( X.cuda( ) ).detach( ).cpu( ).numpy( )
+).eval( ).cpu( ) #.cuda()
+alphas         = lpc_prep( X.cpu( ) ).detach( ).cpu( ).numpy( )
 
 # Print details
 print( f'[Init]   [Audio]  src: { path }, sr: { sr }, duration: { duration }' )
@@ -50,7 +50,7 @@ def librosa_lpc( X, order ):
         res[ 0 ] = 1.
         return res
 
-frames  = lpc_prep.frames( X.cuda( ) )
+frames  = lpc_prep.frames( X.cpu( ) )
 frames  = frames[ 0 ].detach( ).cpu( ).numpy( )
 _alphas = np.array( [ librosa_lpc( frames[ i ], K - 1 ) for i in range( frames.shape[ 0 ] ) ] )
 print( f'[Not Me] [Alphas] size: { _alphas.shape }' )
