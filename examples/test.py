@@ -9,6 +9,31 @@ torch.backends.cudnn.enabled   = True
 from lpctorch import LPCCoefficients
 from librosa.core import lpc
 
+'''
+código disponível em:
+https://pytorch.org/tutorials/beginner/audio_preprocessing_tutorial.html#audio-i-o
+'''
+def plot_waveform(waveform, sample_rate, title="Waveform", xlim=None, ylim=None):
+  waveform = waveform.numpy()
+
+  num_channels, num_frames = waveform.shape
+  time_axis = torch.arange(0, num_frames) / sample_rate
+
+  figure, axes = plt.subplots(num_channels, 1)
+  if num_channels == 1:
+    axes = [axes]
+  for c in range(num_channels):
+    axes[c].plot(time_axis, waveform[c], linewidth=1)
+    axes[c].grid(True)
+    if num_channels > 1:
+      axes[c].set_ylabel(f'Channel {c+1}')
+    if xlim:
+      axes[c].set_xlim(xlim)
+    if ylim:
+      axes[c].set_ylim(ylim)
+  figure.suptitle(title)
+  plt.show(block=False)
+
 # Load audio file
 sr             = 16000 # 16 kHz
 path           = './examples/sample.wav'
@@ -33,13 +58,25 @@ lpc_prep       = LPCCoefficients(
     frame_duration,
     frame_overlap,
     order = ( K - 1 )
-).eval( ).cpu( ) #.cuda()
+).eval( ).cpu() # cuda()
 alphas         = lpc_prep( X.cpu( ) ).detach( ).cpu( ).numpy( )
 
+# resposta em frequência do filtro com os coeficientes
+framesCoefs = {}
+#frameCoefs = {'frame', 'coefs'}
+for i in range(K):
+    framesCoefs[i]=np.array(alphas[0][i]),
+import scipy.signal as sig
+f = 20 # número do frame
+tups = sig.freqz(1, framesCoefs[f][0])
+# mod = ((tups[0])**2 + (tups[1]**))**0.5
+ 
+# 
 # Print details
 print( f'[Init]   [Audio]  src: { path }, sr: { sr }, duration: { duration }' )
 print( f'[Init]   [Sample] size: { X.shape }, duration: { X_duration }' )
 print( f'[Me]     [Alphas] size: { alphas.shape }' )
+
 
 # ====================== NOT ME ================================================
 def librosa_lpc( X, order ):
@@ -60,8 +97,25 @@ print( f'Error [Me] vs [Not Me]: { ( alphas[ 0 ] - _alphas ).sum( axis = -1 ).me
 # Draw frames
 fig = plt.figure( )
 ax  = fig.add_subplot( 211 )
-ax.imshow( alphas[ 0 ] )
+plt.plot(tups[0], abs(tups[1]))
+# ax.imshow( alphas[ 0 ] )
 ax  = fig.add_subplot( 212 )
-ax.imshow( _alphas )
+plt.plot(frames[f]) 
+# ax.imshow( _alphas )
 fig.canvas.draw( )
 plt.show( )
+
+key = cv2.waitKey(0)
+
+# if the `q` key was pressed, break from the loop
+# if key == ord("q"): break
+print('finalizado')
+
+# # Draw frames
+# fig = plt.figure( )
+# ax  = fig.add_subplot( 211 )
+# ax.imshow( alphas[ 0 ] )
+# ax  = fig.add_subplot( 212 )
+# ax.imshow( _alphas )
+# fig.canvas.draw( )
+# plt.show( )
