@@ -69,9 +69,7 @@ for i in range(K):
 import scipy.signal as sig
 f = 20 # número do frame
 tups = sig.freqz(1, framesCoefs[f][0])
-# mod = ((tups[0])**2 + (tups[1]**))**0.5
  
-# 
 # Print details
 print( f'[Init]   [Audio]  src: { path }, sr: { sr }, duration: { duration }' )
 print( f'[Init]   [Sample] size: { X.shape }, duration: { X_duration }' )
